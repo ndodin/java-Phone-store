@@ -1,38 +1,37 @@
 package service;
 
 import dao.ProductDAO;
-import model.Product;
-
 import java.util.List;
+import model.Product;
 
 public class ProductService {
 
     private ProductDAO productDAO;
 
     public ProductService() {
-
         productDAO = new ProductDAO();
     }
 
     // =========================================
     // GET ALL
     // =========================================
-
     public List<Product> getAll() {
 
         return productDAO.getAll();
     }
 
+    public Product getById(int id) {
+        return productDAO.getById(id);
+    }
+
     // =========================================
     // INSERT
     // =========================================
-
     public boolean insert(Product p) {
 
         // VALIDATE
-
-        if (p.getName() == null ||
-                p.getName().trim().isEmpty()) {
+        if (p.getName() == null
+                || p.getName().trim().isEmpty()) {
 
             return false;
         }
@@ -53,7 +52,6 @@ public class ProductService {
     // =========================================
     // UPDATE
     // =========================================
-
     public boolean update(Product p) {
 
         if (p.getId() <= 0) {
@@ -67,7 +65,6 @@ public class ProductService {
     // =========================================
     // DELETE
     // =========================================
-
     public boolean delete(int id) {
 
         if (id <= 0) {

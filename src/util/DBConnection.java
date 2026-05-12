@@ -5,14 +5,14 @@ import java.sql.DriverManager;
 
 public class DBConnection {
 
-	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=CHDienThoai;encrypt=true;trustServerCertificate=true";
-    private static final String USER = "sa"; 
-    private static final String PASSWORD = "123456"; 
+    private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=CHDienThoai;encrypt=true;trustServerCertificate=true;integratedSecurity=true";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "123456";
 
     public static Connection getConnection() {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(URL, USER, PASSWORD);
+            return DriverManager.getConnection(URL);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

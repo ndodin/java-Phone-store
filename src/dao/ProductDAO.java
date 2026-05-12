@@ -1,21 +1,18 @@
 package dao;
 
-import model.Product;
-import util.DBConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import java.util.ArrayList;
 import java.util.List;
+import model.Product;
+import util.DBConnection;
 
 public class ProductDAO {
 
     // =========================================
     // GET ALL PRODUCTS
     // =========================================
-
     public List<Product> getAll() {
 
         List<Product> list = new ArrayList<>();
@@ -26,8 +23,8 @@ public class ProductDAO {
 
             Connection conn = DBConnection.getConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+            PreparedStatement ps
+                    = conn.prepareStatement(sql);
 
             ResultSet rs = ps.executeQuery();
 
@@ -54,53 +51,59 @@ public class ProductDAO {
         return list;
     }
 
+    public Product getById(int id) {
+        String sql = "SELECT * FROM Products WHERE id=?";
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                return new Product(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getDouble("price"),
+                        rs.getInt("quantity")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // =========================================
     // INSERT PRODUCT
     // =========================================
-
     public boolean insert(Product p) {
-
-        String sql =
-                "INSERT INTO Products(name, price, quantity) VALUES (?, ?, ?)";
-
+        String sql = "INSERT INTO Products(name, price, quantity) VALUES (?, ?, ?)";
         try {
-
             Connection conn = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
-
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, p.getName());
-
             ps.setDouble(2, p.getPrice());
-
             ps.setInt(3, p.getQuantity());
-
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
-
             e.printStackTrace();
         }
-
         return false;
     }
 
     // =========================================
     // UPDATE PRODUCT
     // =========================================
-
     public boolean update(Product p) {
 
-        String sql =
-                "UPDATE Products SET name=?, price=?, quantity=? WHERE id=?";
+        String sql
+                = "UPDATE Products SET name=?, price=?, quantity=? WHERE id=?";
 
         try {
 
             Connection conn = DBConnection.getConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+            PreparedStatement ps
+                    = conn.prepareStatement(sql);
 
             ps.setString(1, p.getName());
 
@@ -123,18 +126,17 @@ public class ProductDAO {
     // =========================================
     // DELETE PRODUCT
     // =========================================
-
     public boolean delete(int id) {
 
-        String sql =
-                "DELETE FROM Products WHERE id=?";
+        String sql
+                = "DELETE FROM Products WHERE id=?";
 
         try {
 
             Connection conn = DBConnection.getConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+            PreparedStatement ps
+                    = conn.prepareStatement(sql);
 
             ps.setInt(1, id);
 
