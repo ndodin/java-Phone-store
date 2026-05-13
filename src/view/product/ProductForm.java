@@ -17,15 +17,14 @@ public class ProductForm extends JDialog {
     private Product product;
     private boolean saved = false;
 
-    private static final Color BG = new Color(245, 247, 250); // Xám cực nhạt cho background
-    private static final Color CARD_BG = new Color(255, 255, 255); // Trắng tinh cho bảng
-    private static final Color ACCENT = new Color(13, 110, 253); // Xanh dương đậm để nổi chữ
-    private static final Color TEXT_MAIN = new Color(33, 37, 41); // Chữ xám đen (chữ đen thui sẽ bị chói)
-    private static final Color TEXT_SUB = new Color(108, 117, 125); // Chữ phụ xám mờ
-    private static final Color BORDER_C = new Color(222, 226, 230); // Viền xám nhạt
-    private static final Color INPUT_BG = new Color(255, 255, 255); // Ô search trắng
-    private static final Color SUCCESS = new Color(25, 135, 84); // Xanh lá đậm hơn
-
+    private static final Color BG = new Color(245, 247, 250);
+    private static final Color CARD_BG = new Color(255, 255, 255);
+    private static final Color ACCENT = new Color(13, 110, 253);
+    private static final Color TEXT_MAIN = new Color(33, 37, 41);
+    private static final Color TEXT_SUB = new Color(108, 117, 125);
+    private static final Color BORDER_C = new Color(222, 226, 230);
+    private static final Color INPUT_BG = new Color(255, 255, 255);
+    private static final Color SUCCESS = new Color(25, 135, 84);
     public ProductForm(Frame owner, String title, Product product) {
         super(owner, title, true);
         this.product = (product != null) ? product : new Product();
@@ -46,7 +45,7 @@ public class ProductForm extends JDialog {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER_C),
                 new EmptyBorder(16, 24, 16, 24)
         ));
-        JLabel lblTitle = new JLabel(getTitle());git
+        JLabel lblTitle = new JLabel(getTitle());
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTitle.setForeground(TEXT_MAIN);
         header.add(lblTitle, BorderLayout.WEST);

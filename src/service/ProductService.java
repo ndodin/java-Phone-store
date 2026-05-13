@@ -24,6 +24,10 @@ public class ProductService {
         return productDAO.getById(id);
     }
 
+    public int getTotalProduct() {
+        return productDAO.getTotalProducts();
+    }
+    
     // =========================================
     // INSERT
     // =========================================

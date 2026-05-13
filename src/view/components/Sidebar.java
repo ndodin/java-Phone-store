@@ -9,7 +9,7 @@ public class Sidebar extends JPanel {
 
     public Sidebar() {
         setPreferredSize(new Dimension(200, 0));
-        setBackground(new Color(248, 249, 250)); // Màu nền xám trắng rất nhạt
+        setBackground(new Color(248, 249, 250));
         // Border bên phải để ngăn cách với nội dung chính
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(220, 220, 220)));
         setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -22,7 +22,7 @@ public class Sidebar extends JPanel {
         add(lblTitle);
 
         // BUTTONS
-        btnDashboard = createMenuButton("Dashboard", false); // Dashboard đang được chọn
+        btnDashboard = createMenuButton("Dashboard", false);
         btnProduct = createMenuButton("Product", false);
         btnCustomer = createMenuButton("Customer", false);
         btnInvoice = createMenuButton("Invoice", false);
@@ -51,8 +51,7 @@ public class Sidebar extends JPanel {
             btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(51, 51, 51));
         }
-
-        // Tạo hiệu ứng hover cơ bản
+        
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 if(!isActive) btn.setBackground(new Color(240, 240, 240));

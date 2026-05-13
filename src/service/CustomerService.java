@@ -22,6 +22,10 @@ public class CustomerService {
 
         return customerDAO.getAll();
     }
+    
+    public int getTotalCustomers() {
+        return customerDAO.getTotalCustomers();
+    }
 
     // =========================================
     // INSERT

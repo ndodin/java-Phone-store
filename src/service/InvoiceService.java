@@ -19,139 +19,86 @@ public class InvoiceService {
     private ProductDAO productDAO;
 
     public InvoiceService() {
-
         invoiceDAO = new InvoiceDAO();
-
         detailDAO = new InvoiceDetailDAO();
-
         productDAO = new ProductDAO();
     }
-
+    
+    public double getTodayRevenue() {
+        return invoiceDAO.getTodayRevenue();
+    }
+    
     // CALCULATE TOTAL
-    public double calculateTotal(
-            List<InvoiceDetail> cart
-    ) {
-
+    public double calculateTotal(List<InvoiceDetail> cart) {
         double total = 0;
-
         for (InvoiceDetail d : cart) {
-
             total += d.getSubtotal();
         }
-
         return total;
     }
 
     // CHECKOUT
-    public boolean checkout(
-            Invoice invoice,
-            List<InvoiceDetail> cart
-    ) {
-
+    public boolean checkout(Invoice invoice, List<InvoiceDetail> cart) {
         Connection conn = null;
-
         try {
-
-            // VALIDATE CART
-            if (cart == null
-                    || cart.isEmpty()) {
-
+            if (cart == null || cart.isEmpty()) {
                 return false;
             }
-
-            // CALCULATE TOTAL
-            double total =
-                    calculateTotal(cart);
-
+            double total = calculateTotal(cart);
             invoice.setTotal(total);
-
             invoice.setStatus(
                     "COMPLETED"
             );
-
-            // TRANSACTION
             conn = DBConnection.getConnection();
-
             conn.setAutoCommit(false);
-
-            // INSERT INVOICE
-            int invoiceId =
-                    invoiceDAO.insert(
-                            conn,
-                            invoice
-                    );
-
+            int invoiceId = invoiceDAO.insert(conn, invoice);
             if (invoiceId == -1) {
-
                 conn.rollback();
-
                 return false;
             }
 
             // INSERT DETAILS
             for (InvoiceDetail d : cart) {
-
                 d.setInvoiceId(invoiceId);
-
-                boolean detailResult =
-                        detailDAO.insert(
-                                conn,
-                                d
-                        );
-
+                boolean detailResult = detailDAO.insert(conn, d);
                 if (!detailResult) {
-
                     conn.rollback();
-
                     return false;
                 }
 
                 // UPDATE STOCK
-                boolean stockResult =
-                        productDAO.updateStock(
-                                d.getProductId(),
-                                d.getQuantity()
-                        );
-
+                boolean stockResult = productDAO.updateStock(d.getProductId(), d.getQuantity());
                 if (!stockResult) {
-
                     conn.rollback();
-
                     return false;
                 }
             }
 
             // COMMIT
             conn.commit();
-
             return true;
-
         } catch (Exception e) {
-
             try {
-
                 if (conn != null) {
-
                     conn.rollback();
                 }
-
             } catch (Exception ex) {
-
                 ex.printStackTrace();
             }
-
             e.printStackTrace();
         }
-
         return false;
     }
 
     // GET ALL
     public List<Invoice> getAll() {
-
         return invoiceDAO.getAll();
     }
 
+    public List<Invoice> getTop(int n) {
+        return invoiceDAO.getRecent(n);
+    }
+    
     // GET DETAILS
     public List<InvoiceDetail> getDetails(
             int invoiceId
