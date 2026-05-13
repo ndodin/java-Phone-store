@@ -10,6 +10,9 @@ public class Invoice {
     private Date date;
     private double total;
     private String status;
+    private String customerName;
+
+    private String username;
 
     public Invoice() {
     }
@@ -72,4 +75,26 @@ public class Invoice {
     public void setStatus(String status) {
         this.status = status;
     }
+    
+
+ public String getCustomerName() {
+     return customerName;
+ }
+
+ public void setCustomerName(
+         String customerName
+ ) {
+     this.customerName = customerName;
+ }
+
+
+ public String getUsername() {
+     return username;
+ }
+
+ public void setUsername(
+         String username
+ ) {
+     this.username = username;
+ }
 }

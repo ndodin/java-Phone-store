@@ -147,8 +147,8 @@ public class MainDashboard extends JFrame {
 
     private void checkRole() {
 
-        String role =
-                UserSession.currentUser.getRole();
+    	String role =
+    	        UserSession.getInstance().getUser().getRole();
 
         // STAFF
 

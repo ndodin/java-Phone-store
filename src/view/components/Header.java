@@ -25,8 +25,9 @@ public class Header extends JPanel {
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
         rightPanel.setOpaque(false);
 
-        String username = UserSession.currentUser.getUsername();
-        String role = UserSession.currentUser.getRole();
+        String username = UserSession.getInstance().getUser().getUsername();
+        String role =
+                UserSession.getInstance().getUser().getRole();
 
         JLabel lblUser = new JLabel("<html>User: <b>" + username + "</b> (" + role + ")</html>");
         lblUser.setFont(new Font("Segoe UI", Font.PLAIN, 14));

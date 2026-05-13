@@ -7,6 +7,9 @@ public class InvoiceDetail {
     private int productId;
     private int quantity;
     private double price;
+    
+    private String productName;
+    private double subtotal;
 
     public InvoiceDetail() {
     }
@@ -59,5 +62,21 @@ public class InvoiceDetail {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+    
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+    
+    public double getSubtotal() {
+        return this.price * this.quantity;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
     }
 }

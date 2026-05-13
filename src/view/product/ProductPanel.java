@@ -323,9 +323,8 @@ public class ProductPanel extends JPanel {
 
     private void checkRole() {
 
-        String role =
-                UserSession.currentUser.getRole();
-
+    	String role =
+    	        UserSession.getInstance().getUser().getRole();
         if (role.equalsIgnoreCase("staff")) {
 
             btnDelete.setVisible(false);

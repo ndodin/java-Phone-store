@@ -5,14 +5,16 @@ public class Customer {
     private int id;
     private String name;
     private String phone;
+    private int status;
 
     public Customer() {
     }
 
-    public Customer(int id, String name, String phone) {
+    public Customer(int id, String name, String phone, int status) {
         this.id = id;
         this.name = name;
         this.phone = phone;
+        this.status = status;
     }
 
     public int getId() {
@@ -37,6 +39,13 @@ public class Customer {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+    public int getStatus() { 
+    	return status; 
+    }
+    
+    public void setStatus(int status) { 
+    	this.status = status; 
     }
 
     @Override

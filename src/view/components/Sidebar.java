@@ -23,7 +23,7 @@ public class Sidebar extends JPanel {
 
         // BUTTONS
         btnDashboard = createMenuButton("Dashboard", false); // Dashboard đang được chọn
-        btnProduct = createMenuButton("Product", true);
+        btnProduct = createMenuButton("Product", false);
         btnCustomer = createMenuButton("Customer", false);
         btnInvoice = createMenuButton("Invoice", false);
         btnHistory = createMenuButton("History", false);

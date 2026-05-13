@@ -1,7 +1,6 @@
 package dao;
 
 import model.Invoice;
-import model.InvoiceDetail;
 import util.DBConnection;
 
 import java.sql.*;
@@ -10,150 +9,71 @@ import java.util.List;
 
 public class InvoiceDAO {
 
-    // =========================================
-    // CHECKOUT
-    // =========================================
+    // INSERT
+    public int insert(
+            Connection conn,
+            Invoice invoice
+    ) throws Exception {
 
-    public boolean checkout(
-            Invoice invoice,
-            List<InvoiceDetail> details
-    ) {
+        String sql = """
+                INSERT INTO Invoices
+                (customer_id, user_id, total, status)
+                VALUES (?, ?, ?, ?)
+                """;
 
-        Connection conn = null;
+        PreparedStatement ps =
+                conn.prepareStatement(
+                        sql,
+                        Statement.RETURN_GENERATED_KEYS
+                );
 
-        try {
+        ps.setInt(1,invoice.getCustomerId());
 
-            conn = DBConnection.getConnection();
+        ps.setInt(2,invoice.getUserId());
 
-            // TRANSACTION
-            conn.setAutoCommit(false);
+        ps.setDouble(3,invoice.getTotal());
 
-            // =====================================
-            // INSERT INVOICE
-            // =====================================
+        ps.setString(4,invoice.getStatus());
 
-            String invoiceSql =
-                    "INSERT INTO Invoices(customer_id, user_id, total, status) "
-                            + "VALUES (?, ?, ?, ?)";
+        ps.executeUpdate();
 
-            PreparedStatement invoicePs =
-                    conn.prepareStatement(
-                            invoiceSql,
-                            Statement.RETURN_GENERATED_KEYS
-                    );
+        ResultSet rs =ps.getGeneratedKeys();
 
-            invoicePs.setInt(1, invoice.getCustomerId());
+        if (rs.next()) {
 
-            invoicePs.setInt(2, invoice.getUserId());
-
-            invoicePs.setDouble(3, invoice.getTotal());
-
-            invoicePs.setString(4, invoice.getStatus());
-
-            invoicePs.executeUpdate();
-
-            // =====================================
-            // GET GENERATED ID
-            // =====================================
-
-            ResultSet generatedKeys =
-                    invoicePs.getGeneratedKeys();
-
-            int invoiceId = 0;
-
-            if (generatedKeys.next()) {
-
-                invoiceId = generatedKeys.getInt(1);
-            }
-
-            // =====================================
-            // INSERT DETAILS
-            // =====================================
-
-            String detailSql =
-                    "INSERT INTO InvoiceDetails(invoice_id, product_id, quantity, price) "
-                            + "VALUES (?, ?, ?, ?)";
-
-            PreparedStatement detailPs =
-                    conn.prepareStatement(detailSql);
-
-            // =====================================
-            // UPDATE STOCK
-            // =====================================
-
-            String stockSql =
-                    "UPDATE Products "
-                            + "SET quantity = quantity - ? "
-                            + "WHERE id=?";
-
-            PreparedStatement stockPs =
-                    conn.prepareStatement(stockSql);
-
-            for (InvoiceDetail d : details) {
-
-                // INSERT DETAIL
-                detailPs.setInt(1, invoiceId);
-
-                detailPs.setInt(2, d.getProductId());
-
-                detailPs.setInt(3, d.getQuantity());
-
-                detailPs.setDouble(4, d.getPrice());
-
-                detailPs.executeUpdate();
-
-                // UPDATE STOCK
-                stockPs.setInt(1, d.getQuantity());
-
-                stockPs.setInt(2, d.getProductId());
-
-                stockPs.executeUpdate();
-            }
-
-            // COMMIT
-            conn.commit();
-
-            return true;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            try {
-
-                if (conn != null) {
-
-                    conn.rollback();
-                }
-
-            } catch (Exception ex) {
-
-                ex.printStackTrace();
-            }
+            return rs.getInt(1);
         }
 
-        return false;
+        return -1;
     }
-
-    // =========================================
-    // GET ALL INVOICES
-    // =========================================
-
+    // GET ALL
     public List<Invoice> getAll() {
 
-        List<Invoice> list = new ArrayList<>();
-
-        String sql =
-                "SELECT * FROM Invoices ORDER BY id DESC";
+        List<Invoice> list =
+                new ArrayList<>();
 
         try {
 
-            Connection conn = DBConnection.getConnection();
+            Connection conn =
+                    DBConnection.getConnection();
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+            String sql = """
+                    SELECT i.*,
+                           c.name AS customer_name,
+                           u.username
+                    FROM Invoices i
+                    JOIN Customers c
+                    ON i.customer_id = c.id
+                    JOIN Users u
+                    ON i.user_id = u.id
+                    ORDER BY i.id DESC
+                    """;
 
-            ResultSet rs = ps.executeQuery();
+            Statement st =
+                    conn.createStatement();
+
+            ResultSet rs =
+                    st.executeQuery(sql);
 
             while (rs.next()) {
 
@@ -161,18 +81,38 @@ public class InvoiceDAO {
 
                 i.setId(rs.getInt("id"));
 
-                i.setCustomerId(rs.getInt("customer_id"));
+                i.setCustomerId(
+                        rs.getInt("customer_id")
+                );
 
-                i.setUserId(rs.getInt("user_id"));
+                i.setUserId(
+                        rs.getInt("user_id")
+                );
 
-                i.setDate(rs.getTimestamp("date"));
+                i.setDate(
+                        rs.getTimestamp("date")
+                );
 
-                i.setTotal(rs.getDouble("total"));
+                i.setTotal(
+                        rs.getDouble("total")
+                );
 
-                i.setStatus(rs.getString("status"));
+                i.setStatus(
+                        rs.getString("status")
+                );
+
+                i.setCustomerName(
+                        rs.getString("customer_name")
+                );
+
+                i.setUsername(
+                        rs.getString("username")
+                );
 
                 list.add(i);
             }
+
+            conn.close();
 
         } catch (Exception e) {
 
@@ -182,130 +122,37 @@ public class InvoiceDAO {
         return list;
     }
 
-    // =========================================
-    // GET DETAILS BY INVOICE ID
-    // =========================================
-
-    public List<InvoiceDetail> getDetailsByInvoiceId(int invoiceId) {
-
-        List<InvoiceDetail> list = new ArrayList<>();
-
-        String sql =
-                "SELECT * FROM InvoiceDetails WHERE invoice_id=?";
+    // CANCEL
+    public boolean cancelInvoice(
+            int invoiceId
+    ) {
 
         try {
 
-            Connection conn = DBConnection.getConnection();
+            Connection conn =
+                    DBConnection.getConnection();
+
+            String sql = """
+                    UPDATE Invoices
+                    SET status = 'CANCELLED'
+                    WHERE id = ?
+                    """;
 
             PreparedStatement ps =
                     conn.prepareStatement(sql);
 
             ps.setInt(1, invoiceId);
 
-            ResultSet rs = ps.executeQuery();
+            int result =
+                    ps.executeUpdate();
 
-            while (rs.next()) {
+            conn.close();
 
-                InvoiceDetail d = new InvoiceDetail();
-
-                d.setId(rs.getInt("id"));
-
-                d.setInvoiceId(rs.getInt("invoice_id"));
-
-                d.setProductId(rs.getInt("product_id"));
-
-                d.setQuantity(rs.getInt("quantity"));
-
-                d.setPrice(rs.getDouble("price"));
-
-                list.add(d);
-            }
+            return result > 0;
 
         } catch (Exception e) {
 
             e.printStackTrace();
-        }
-
-        return list;
-    }
-
-    // =========================================
-    // CANCEL INVOICE
-    // =========================================
-
-    public boolean cancelInvoice(int invoiceId) {
-
-        Connection conn = null;
-
-        try {
-
-            conn = DBConnection.getConnection();
-
-            conn.setAutoCommit(false);
-
-            // =====================================
-            // GET DETAILS
-            // =====================================
-
-            List<InvoiceDetail> details =
-                    getDetailsByInvoiceId(invoiceId);
-
-            // =====================================
-            // RESTORE STOCK
-            // =====================================
-
-            String stockSql =
-                    "UPDATE Products "
-                            + "SET quantity = quantity + ? "
-                            + "WHERE id=?";
-
-            PreparedStatement stockPs =
-                    conn.prepareStatement(stockSql);
-
-            for (InvoiceDetail d : details) {
-
-                stockPs.setInt(1, d.getQuantity());
-
-                stockPs.setInt(2, d.getProductId());
-
-                stockPs.executeUpdate();
-            }
-
-            // =====================================
-            // UPDATE STATUS
-            // =====================================
-
-            String invoiceSql =
-                    "UPDATE Invoices "
-                            + "SET status='CANCELLED' "
-                            + "WHERE id=?";
-
-            PreparedStatement invoicePs =
-                    conn.prepareStatement(invoiceSql);
-
-            invoicePs.setInt(1, invoiceId);
-
-            invoicePs.executeUpdate();
-
-            conn.commit();
-
-            return true;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            try {
-
-                if (conn != null) {
-
-                    conn.rollback();
-                }
-
-            } catch (Exception ex) {
-
-                ex.printStackTrace();
-            }
         }
 
         return false;
