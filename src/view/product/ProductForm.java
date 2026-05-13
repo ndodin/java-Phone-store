@@ -6,7 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import model.*;
 
-public class ProductDetail extends JDialog {
+public class ProductForm extends JDialog {
 
     private JTextField txtName;
     private JTextField txtPrice;
@@ -26,7 +26,7 @@ public class ProductDetail extends JDialog {
     private static final Color INPUT_BG = new Color(255, 255, 255); // Ô search trắng
     private static final Color SUCCESS = new Color(25, 135, 84); // Xanh lá đậm hơn
 
-    public ProductDetail(Frame owner, String title, Product product) {
+    public ProductForm(Frame owner, String title, Product product) {
         super(owner, title, true);
         this.product = (product != null) ? product : new Product();
         buildUI();
@@ -182,7 +182,7 @@ public class ProductDetail extends JDialog {
         }
 
         private void showError(String msg) {
-            JOptionPane.showMessageDialog(ProductDetail.this, msg, "Validation Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(ProductForm.this, msg, "Validation Error", JOptionPane.WARNING_MESSAGE);
         }
     }
 

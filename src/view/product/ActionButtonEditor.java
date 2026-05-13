@@ -62,11 +62,11 @@ public class ActionButtonEditor extends DefaultCellEditor implements ActionListe
         fireEditingStopped();
         controller.actionPerformed(e);
     }
-
+    
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value,
-            boolean isSelected, int row, int column) {
-        panel.setBackground(new Color(35, 42, 60));
+                                                 boolean isSelected, int row, int column) {
+        panel.setBackground(new Color(207, 226, 255)); // bỏ màu tối
         return panel;
     }
 

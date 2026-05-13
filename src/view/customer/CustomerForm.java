@@ -9,55 +9,31 @@ import java.awt.*;
 public class CustomerForm extends JDialog {
 
     private JTextField txtName;
-
     private JTextField txtPhone;
-
     private JButton btnSave;
-
     private Customer customer;
-
     private CustomerService customerService;
-
     private CustomerPanel parentPanel;
 
-    public CustomerForm(
-    		Customer customer,
-    		CustomerPanel parentPanel
-    ) {
-
+    public CustomerForm(Customer customer, CustomerPanel parentPanel) {
         this.customer = customer;
-
         this.parentPanel = parentPanel;
-
         customerService = new CustomerService();
-
         initComponents();
-
         fillData();
-
         initDialog();
     }
 
     private void initComponents() {
-
         setLayout(new GridLayout(8, 1, 10, 10));
-
         add(new JLabel("Customer Name"));
-
         txtName = new JTextField();
-
         add(txtName);
-
         add(new JLabel("Phone"));
-
         txtPhone = new JTextField();
-
         add(txtPhone);
-
         btnSave = new JButton("SAVE");
-
         add(btnSave);
-
         btnSave.addActionListener(e -> saveCustomer());
     }
 
@@ -66,14 +42,10 @@ public class CustomerForm extends JDialog {
     // =========================================
 
     private void fillData() {
-
         if (customer == null) {
-
             return;
         }
-
         txtName.setText(customer.getName());
-
         txtPhone.setText(customer.getPhone());
     }
 
@@ -82,33 +54,17 @@ public class CustomerForm extends JDialog {
     // =========================================
 
     private void saveCustomer() {
-
         try {
-
-            String name =
-                    txtName.getText().trim();
-
-            String phone =
-                    txtPhone.getText().trim();
-
+            String name = txtName.getText().trim();
+            String phone = txtPhone.getText().trim();
             // ADD
-
             if (customer == null) {
-
             	Customer c = new Customer();
-
                 c.setName(name);
-
                 c.setPhone(phone);
-                
-                boolean result =
-                        customerService.insert(c);
-
+                boolean result = customerService.insert(c);
                 if (result) {
-
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "Add success"
+                    JOptionPane.showMessageDialog( this,"Add success"
                     );
 
                     parentPanel.loadTable();

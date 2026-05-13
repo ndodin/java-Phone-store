@@ -5,17 +5,17 @@ import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 
 public class ActionButtonRenderer implements TableCellRenderer {
-
+    
     private JPanel panel;
     private JButton btnEdit;
     private JButton btnDelete;
-
+    
     private static final Color EDIT_BG = new Color(49, 130, 206);
     private static final Color DELETE_BG = new Color(229, 62, 62);
     private static final Color FG = Color.WHITE;
     private static final Color ROW_ODD = new Color(22, 25, 37);
     private static final Color ROW_EVEN = new Color(26, 32, 46);
-
+    
     public ActionButtonRenderer() {
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
         btnEdit = makeButton("Edit", EDIT_BG);
@@ -23,7 +23,7 @@ public class ActionButtonRenderer implements TableCellRenderer {
         panel.add(btnEdit);
         panel.add(btnDelete);
     }
-
+    
     private JButton makeButton(String text, Color bg) {
         JButton btn = new JButton(text) {
             @Override
@@ -46,15 +46,11 @@ public class ActionButtonRenderer implements TableCellRenderer {
         btn.setPreferredSize(new Dimension(80, 28));
         return btn;
     }
-
+    
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        if (isSelected) {
-            panel.setBackground(new Color(35, 42, 60));
-        } else {
-            panel.setBackground(row % 2 == 0 ? ROW_ODD : ROW_EVEN);
-        }
+                                                   boolean isSelected, boolean hasFocus, int row, int column) {
+        panel.setBackground(isSelected ? new Color(207, 226, 255) : Color.WHITE); // bỏ màu tối
         return panel;
     }
 }
