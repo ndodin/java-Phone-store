@@ -46,7 +46,7 @@ public class ProductForm extends JDialog {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER_C),
                 new EmptyBorder(16, 24, 16, 24)
         ));
-        JLabel lblTitle = new JLabel(getTitle());
+        JLabel lblTitle = new JLabel(getTitle());git
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTitle.setForeground(TEXT_MAIN);
         header.add(lblTitle, BorderLayout.WEST);

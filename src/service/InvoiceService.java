@@ -1,102 +1,207 @@
 package service;
 
 import dao.InvoiceDAO;
+import dao.InvoiceDetailDAO;
+import dao.ProductDAO;
 import model.Invoice;
 import model.InvoiceDetail;
+import util.DBConnection;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class InvoiceService {
 
     private InvoiceDAO invoiceDAO;
 
+    private InvoiceDetailDAO detailDAO;
+
+    private ProductDAO productDAO;
+
     public InvoiceService() {
 
         invoiceDAO = new InvoiceDAO();
+
+        detailDAO = new InvoiceDetailDAO();
+
+        productDAO = new ProductDAO();
     }
 
-    // =========================================
     // CALCULATE TOTAL
-    // =========================================
-
     public double calculateTotal(
-            List<InvoiceDetail> details
+            List<InvoiceDetail> cart
     ) {
 
         double total = 0;
 
-        for (InvoiceDetail d : details) {
+        for (InvoiceDetail d : cart) {
 
-            total += d.getPrice() * d.getQuantity();
+            total += d.getSubtotal();
         }
 
         return total;
     }
 
-    // =========================================
     // CHECKOUT
-    // =========================================
-
     public boolean checkout(
             Invoice invoice,
-            List<InvoiceDetail> details
+            List<InvoiceDetail> cart
     ) {
 
-        // VALIDATE
+        Connection conn = null;
 
-        if (invoice == null) {
+        try {
 
-            return false;
+            // VALIDATE CART
+            if (cart == null
+                    || cart.isEmpty()) {
+
+                return false;
+            }
+
+            // CALCULATE TOTAL
+            double total =
+                    calculateTotal(cart);
+
+            invoice.setTotal(total);
+
+            invoice.setStatus(
+                    "COMPLETED"
+            );
+
+            // TRANSACTION
+            conn = DBConnection.getConnection();
+
+            conn.setAutoCommit(false);
+
+            // INSERT INVOICE
+            int invoiceId =
+                    invoiceDAO.insert(
+                            conn,
+                            invoice
+                    );
+
+            if (invoiceId == -1) {
+
+                conn.rollback();
+
+                return false;
+            }
+
+            // INSERT DETAILS
+            for (InvoiceDetail d : cart) {
+
+                d.setInvoiceId(invoiceId);
+
+                boolean detailResult =
+                        detailDAO.insert(
+                                conn,
+                                d
+                        );
+
+                if (!detailResult) {
+
+                    conn.rollback();
+
+                    return false;
+                }
+
+                // UPDATE STOCK
+                boolean stockResult =
+                        productDAO.updateStock(
+                                d.getProductId(),
+                                d.getQuantity()
+                        );
+
+                if (!stockResult) {
+
+                    conn.rollback();
+
+                    return false;
+                }
+            }
+
+            // COMMIT
+            conn.commit();
+
+            return true;
+
+        } catch (Exception e) {
+
+            try {
+
+                if (conn != null) {
+
+                    conn.rollback();
+                }
+
+            } catch (Exception ex) {
+
+                ex.printStackTrace();
+            }
+
+            e.printStackTrace();
         }
 
-        if (details == null || details.isEmpty()) {
-
-            return false;
-        }
-
-        // CALCULATE TOTAL
-
-        double total =
-                calculateTotal(details);
-
-        invoice.setTotal(total);
-
-        invoice.setStatus("COMPLETED");
-
-        return invoiceDAO.checkout(invoice, details);
+        return false;
     }
 
-    // =========================================
     // GET ALL
-    // =========================================
-
     public List<Invoice> getAll() {
 
         return invoiceDAO.getAll();
     }
 
-    // =========================================
-    // CANCEL
-    // =========================================
-
-    public boolean cancelInvoice(int invoiceId) {
-
-        if (invoiceId <= 0) {
-
-            return false;
-        }
-
-        return invoiceDAO.cancelInvoice(invoiceId);
-    }
-
-    // =========================================
-    // DETAILS
-    // =========================================
-
-    public List<InvoiceDetail> getDetailsByInvoiceId(
+    // GET DETAILS
+    public List<InvoiceDetail> getDetails(
             int invoiceId
     ) {
 
-        return invoiceDAO.getDetailsByInvoiceId(invoiceId);
+        return detailDAO.getByInvoiceId(
+                invoiceId
+        );
+    }
+
+    // CANCEL INVOICE
+    public boolean cancelInvoice(
+            Invoice invoice
+    ) {
+
+        try {
+
+            // PREVENT RE-CANCEL
+            if (invoice.getStatus()
+                    .equalsIgnoreCase(
+                            "CANCELLED"
+                    )) {
+
+                return false;
+            }
+
+            // RESTORE STOCK
+            List<InvoiceDetail> details =
+                    detailDAO.getByInvoiceId(
+                            invoice.getId()
+                    );
+
+            for (InvoiceDetail d : details) {
+
+                productDAO.restoreStock(
+                        d.getProductId(),
+                        d.getQuantity()
+                );
+            }
+
+            // UPDATE STATUS
+            return invoiceDAO.cancelInvoice(
+                    invoice.getId()
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

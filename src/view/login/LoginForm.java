@@ -150,7 +150,7 @@ public class LoginForm extends JFrame {
 
         User user = authService.login(username, password);
         if (user != null) {
-            UserSession.currentUser = user;
+        	UserSession.getInstance().setUser(user);
             MainDashboard dashboard = new MainDashboard();
             dashboard.setVisible(true);
             dispose();

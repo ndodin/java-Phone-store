@@ -12,23 +12,17 @@ import java.util.List;
 
 public class CustomerDAO {
 
-    // =========================================
     // GET ALL CUSTOMERS
-    // =========================================
-
-    public List<Customer> getAll() {
+     public List<Customer> getAll() {
 
         List<Customer> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM Customers";
+        String sql = "SELECT * FROM Customers WHERE status = 1";
 
-        try {
-
-            Connection conn = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
-
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps =
+                        conn.prepareStatement(sql))
+        {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -43,6 +37,7 @@ public class CustomerDAO {
 
                 list.add(c);
             }
+   
 
         } catch (Exception e) {
 
@@ -52,56 +47,41 @@ public class CustomerDAO {
         return list;
     }
 
-    // =========================================
     // INSERT CUSTOMER
-    // =========================================
-
     public boolean insert(Customer c) {
 
-        String sql =
-                "INSERT INTO Customers(name, phone) VALUES (?, ?)";
+    String sql = "INSERT INTO Customers(name, phone) VALUES (?, ?)";
 
-        try {
+    try (
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
 
-            Connection conn = DBConnection.getConnection();
+        ps.setString(1, c.getName());
 
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+        ps.setString(2, c.getPhone());
 
-            ps.setString(1, c.getName());
+        return ps.executeUpdate() > 0;
 
-            ps.setString(2, c.getPhone());
+    } catch (Exception e) {
 
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-
-        return false;
+        e.printStackTrace();
     }
 
-    // =========================================
-    // UPDATE CUSTOMER
-    // =========================================
+    return false;
+}
 
+    // UPDATE CUSTOMER
     public boolean update(Customer c) {
 
-        String sql =
-                "UPDATE Customers SET name=?, phone=? WHERE id=?";
+        String sql = "UPDATE Customers SET name=?, phone=? WHERE id=?";
 
-        try {
-
-            Connection conn = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
-
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql))
+        {
             ps.setString(1, c.getName());
-
             ps.setString(2, c.getPhone());
-
+            ps.setInt(3, c.getId());
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
@@ -112,24 +92,16 @@ public class CustomerDAO {
         return false;
     }
 
-    // =========================================
     // DELETE 	CUSTOMER
-    // =========================================
-
     public boolean delete(int id) {
 
-        String sql =
-                "DELETE FROM Customers WHERE id=?";
+        String sql = "UPDATE Customers SET status = 0 WHERE id = ?";
 
-        try {
-
-            Connection conn = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql))
+        {
 
             ps.setInt(1, id);
-
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {

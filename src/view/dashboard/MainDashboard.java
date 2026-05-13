@@ -1,21 +1,25 @@
 package view.dashboard;
 
-import java.awt.*;
-import javax.swing.*;
 import session.UserSession;
+
 import view.components.Header;
 import view.components.Sidebar;
 import view.customer.CustomerPanel;
 import view.invoice.InvoiceHistoryPanel;
 import view.invoice.InvoicePanel;
+import view.product.ProductPanel;
+
 import view.login.LoginForm;
-import view.product.*;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class MainDashboard extends JFrame {
 
     // =========================================
     // COMPONENTS
     // =========================================
+
     private Sidebar sidebar;
 
     private Header header;
@@ -27,6 +31,7 @@ public class MainDashboard extends JFrame {
     // =========================================
     // CONSTRUCTOR
     // =========================================
+
     public MainDashboard() {
 
         initComponents();
@@ -39,6 +44,7 @@ public class MainDashboard extends JFrame {
     // =========================================
     // INIT COMPONENTS
     // =========================================
+
     private void initComponents() {
 
         setLayout(new BorderLayout());
@@ -46,6 +52,7 @@ public class MainDashboard extends JFrame {
         // =====================================
         // SIDEBAR
         // =====================================
+
         sidebar = new Sidebar();
 
         add(sidebar, BorderLayout.WEST);
@@ -53,6 +60,7 @@ public class MainDashboard extends JFrame {
         // =====================================
         // HEADER
         // =====================================
+
         header = new Header();
 
         add(header, BorderLayout.NORTH);
@@ -60,6 +68,7 @@ public class MainDashboard extends JFrame {
         // =====================================
         // CONTENT
         // =====================================
+
         cardLayout = new CardLayout();
 
         contentPanel = new JPanel(cardLayout);
@@ -67,6 +76,7 @@ public class MainDashboard extends JFrame {
         // =====================================
         // ADD PANELS
         // =====================================
+
         contentPanel.add(
                 new ProductPanel(),
                 "PRODUCT"
@@ -90,8 +100,9 @@ public class MainDashboard extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
 
         // =====================================
-        // EVENTS
+      // EVENTS
         // =====================================
+
         sidebar.btnProduct.addActionListener(e -> {
 
             cardLayout.show(
@@ -127,21 +138,24 @@ public class MainDashboard extends JFrame {
         header.btnLogout.addActionListener(e -> {
 
             logout();
-        });
+       });
     }
 
     // =========================================
     // ROLE
     // =========================================
+
     private void checkRole() {
 
-        String role
-                = UserSession.currentUser.getRole();
+    	String role =
+    	        UserSession.getInstance().getUser().getRole();
 
         // STAFF
+
         if (role.equalsIgnoreCase("staff")) {
 
             // staff không được quản lý product
+
             sidebar.btnProduct.setEnabled(false);
         }
     }
@@ -149,10 +163,11 @@ public class MainDashboard extends JFrame {
     // =========================================
     // LOGOUT
     // =========================================
+
     private void logout() {
 
-        int confirm
-                = JOptionPane.showConfirmDialog(
+        int confirm =
+                JOptionPane.showConfirmDialog(
                         this,
                         "Logout?",
                         "Confirm",
@@ -170,6 +185,7 @@ public class MainDashboard extends JFrame {
     // =========================================
     // FRAME
     // =========================================
+
     private void initFrame() {
 
         setTitle("Phone Store Management");

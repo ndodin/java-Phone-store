@@ -4,404 +4,340 @@ import model.Customer;
 import model.Invoice;
 import model.InvoiceDetail;
 import model.Product;
-
 import service.CustomerService;
 import service.InvoiceService;
 import service.ProductService;
-
 import session.UserSession;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InvoicePanel extends JPanel {
 
-    // =========================================
-    // SERVICES
-    // =========================================
-
     private ProductService productService;
-
     private CustomerService customerService;
-
     private InvoiceService invoiceService;
 
-    // =========================================
-    // COMPONENTS
-    // =========================================
-
-    private JTable tblProducts;
-
-    private JTable tblCart;
-
-    private DefaultTableModel productModel;
-
-    private DefaultTableModel cartModel;
-
-    private JComboBox<Customer> cbCustomers;
-
-    private JLabel lblTotal;
-
-    private JButton btnAddToCart;
-
-    private JButton btnCheckout;
-
-    // =========================================
-    // DATA
-    // =========================================
-
     private List<Product> productList;
-
     private List<Customer> customerList;
-
     private List<InvoiceDetail> cart;
 
-    // =========================================
-    // CONSTRUCTOR
-    // =========================================
+    private JComboBox<String> cbCustomer;
+    private JLabel lblCurrentCustomer;
+    private JPanel panelCurrentCustomer;
+    private JComboBox<String> cbProduct;
+    private JTextField txtQuantity;
+    private JButton btnAddToCart;
+    private JButton btnHistory;
+
+    private JTable tableCart;
+    private DefaultTableModel cartModel;
+    private JLabel lblTotal;
+    private JButton btnCheckout;
+    private JButton btnClear;
 
     public InvoicePanel() {
-
         productService = new ProductService();
-
         customerService = new CustomerService();
-
         invoiceService = new InvoiceService();
-
         cart = new ArrayList<>();
+        productList = productService.getAll();
+        customerList = customerService.getAll();
 
         initComponents();
-
         loadCustomers();
-
         loadProducts();
     }
 
-    // =========================================
-    // INIT
-    // =========================================
-
     private void initComponents() {
+        setLayout(new BorderLayout(15, 15));
+        setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        setLayout(new BorderLayout(10, 10));
-
-        // =====================================
-        // TOP
-        // =====================================
-
-        JPanel topPanel =
-                new JPanel(new FlowLayout(
-                        FlowLayout.LEFT
-                ));
-
-        topPanel.add(new JLabel("Customer:"));
-
-        cbCustomers = new JComboBox<>();
-
-        cbCustomers.setPreferredSize(
-                new Dimension(250, 30)
-        );
-
-        topPanel.add(cbCustomers);
-
-        lblTotal =
-                new JLabel("Total: 0");
-
-        lblTotal.setFont(
-                new Font("Arial",
-                        Font.BOLD,
-                        20)
-        );
-
-        topPanel.add(lblTotal);
-
+        // --- TOP HEADER ---
+        JPanel topPanel = new JPanel(new BorderLayout());
+        JLabel lblTitle = new JLabel("Invoice (POS)");
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
+        btnHistory = new JButton("History");
+        btnHistory.setFocusPainted(false);
+        topPanel.add(lblTitle, BorderLayout.WEST);
+        topPanel.add(btnHistory, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
-        // =====================================
-        // CENTER
-        // =====================================
+        // --- MAIN BODY ---
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1.0;
+        gbc.insets = new Insets(0, 0, 0, 15);
 
-        JPanel centerPanel =
-                new JPanel(new GridLayout(1, 2, 10, 10));
+        // --- LEFT PANEL ---
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), "Create Order", 0, 0, new Font("Arial", Font.BOLD, 14)));
 
-        // PRODUCT TABLE
+        JPanel formPanel = new JPanel(new GridLayout(8, 1, 5, 5));
+        formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        String[] productColumns = {
-                "ID",
-                "Name",
-                "Price",
-                "Stock"
+        cbCustomer = new JComboBox<>();
+        cbCustomer.setBackground(Color.WHITE);
+        
+        panelCurrentCustomer = new JPanel(new BorderLayout());
+        panelCurrentCustomer.setBackground(new Color(225, 240, 255));
+        panelCurrentCustomer.setBorder(new EmptyBorder(10, 10, 10, 10));
+        lblCurrentCustomer = new JLabel("Current Customer: ");
+        lblCurrentCustomer.setForeground(new Color(0, 102, 204));
+        panelCurrentCustomer.add(lblCurrentCustomer, BorderLayout.CENTER);
+        panelCurrentCustomer.setVisible(false);
+
+        cbProduct = new JComboBox<>();
+        cbProduct.setBackground(Color.WHITE);
+        txtQuantity = new JTextField("1");
+        
+        btnAddToCart = new JButton("Add To Cart");
+        btnAddToCart.setBackground(new Color(33, 150, 243)); // Blue
+        btnAddToCart.setForeground(Color.WHITE);
+        btnAddToCart.setOpaque(true);             
+        btnAddToCart.setBorderPainted(false);
+  
+        formPanel.add(new JLabel("Customer:"));
+        formPanel.add(cbCustomer);
+        formPanel.add(panelCurrentCustomer);
+        formPanel.add(new JLabel("Product:"));
+        formPanel.add(cbProduct);
+        formPanel.add(new JLabel("Quantity:"));
+        formPanel.add(txtQuantity);
+        
+        JPanel btnAddPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
+        btnAddPanel.add(btnAddToCart);
+
+        leftPanel.add(formPanel);
+        leftPanel.add(btnAddPanel);
+        
+        gbc.gridx = 0;
+        gbc.weightx = 0.35;
+        mainPanel.add(leftPanel, gbc);
+
+        // --- RIGHT PANEL ---
+        JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
+        rightPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), "Shopping Cart", 0, 0, new Font("Arial", Font.BOLD, 14)));
+        
+        String[] columns = {"Product", "Qty", "Price", "Subtotal", "Action"};
+        cartModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 4; 
+            }
         };
+        tableCart = new JTable(cartModel);
+        tableCart.setRowHeight(35);
+        tableCart.getColumn("Action").setCellRenderer(new RemoveButtonRenderer());
+        tableCart.getColumn("Action").setCellEditor(new RemoveButtonEditor(new JCheckBox()));
 
-        productModel =
-                new DefaultTableModel(productColumns, 0);
+        JScrollPane scroll = new JScrollPane(tableCart);
+        scroll.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        rightPanel.add(scroll, BorderLayout.CENTER);
 
-        tblProducts =
-                new JTable(productModel);
+        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
+        bottomPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JScrollPane productScroll =
-                new JScrollPane(tblProducts);
+        JPanel totalPanel = new JPanel(new BorderLayout());
+        totalPanel.setBackground(new Color(245, 245, 245));
+        totalPanel.setBorder(new EmptyBorder(15, 10, 15, 10));
+        lblTotal = new JLabel("Total: $0");
+        lblTotal.setFont(new Font("Arial", Font.BOLD, 16));
+        totalPanel.add(lblTotal, BorderLayout.WEST);
 
-        centerPanel.add(productScroll);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        btnClear = new JButton("Clear");
+        btnClear.setBackground(Color.WHITE);
+        btnClear.setFocusPainted(false);
+        
+        btnCheckout = new JButton("Checkout");
+        btnCheckout.setBackground(new Color(76, 175, 80)); // Green
+        btnCheckout.setForeground(Color.WHITE);
+        btnCheckout.setOpaque(true);              
+        btnCheckout.setBorderPainted(false);
 
-        // CART TABLE
+        buttonPanel.add(btnClear);
+        buttonPanel.add(btnCheckout);
 
-        String[] cartColumns = {
-                "Product ID",
-                "Product",
-                "Quantity",
-                "Price",
-                "Subtotal"
-        };
+        bottomPanel.add(totalPanel, BorderLayout.NORTH);
+        bottomPanel.add(buttonPanel, BorderLayout.CENTER);
 
-        cartModel =
-                new DefaultTableModel(cartColumns, 0);
+        rightPanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        tblCart =
-                new JTable(cartModel);
+        gbc.gridx = 1;
+        gbc.weightx = 0.65;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        mainPanel.add(rightPanel, gbc);
 
-        JScrollPane cartScroll =
-                new JScrollPane(tblCart);
+        add(mainPanel, BorderLayout.CENTER);
 
-        centerPanel.add(cartScroll);
-
-        add(centerPanel, BorderLayout.CENTER);
-
-        // =====================================
-        // BOTTOM
-        // =====================================
-
-        JPanel bottomPanel = new JPanel();
-
-        btnAddToCart =
-                new JButton("ADD TO CART");
-
-        btnCheckout =
-                new JButton("CHECKOUT");
-
-        bottomPanel.add(btnAddToCart);
-
-        bottomPanel.add(btnCheckout);
-
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        // =====================================
-        // EVENTS
-        // =====================================
-
-        btnAddToCart.addActionListener(
-                e -> addToCart()
-        );
-
-        btnCheckout.addActionListener(
-                e -> checkout()
-        );
+        // --- EVENTS ---
+        btnAddToCart.addActionListener(e -> addToCart());
+        btnCheckout.addActionListener(e -> checkout());
+        btnClear.addActionListener(e -> clearCart());
+        
     }
-
-    // =========================================
-    // LOAD CUSTOMERS
-    // =========================================
 
     private void loadCustomers() {
-
-        customerList =
-                customerService.getAll();
-
-        cbCustomers.removeAllItems();
-
+        cbCustomer.removeAllItems();
         for (Customer c : customerList) {
-
-            cbCustomers.addItem(c);
+            cbCustomer.addItem(c.getName());
         }
     }
-
-    // =========================================
-    // LOAD PRODUCTS
-    // =========================================
 
     private void loadProducts() {
-
-        productModel.setRowCount(0);
-
-        productList =
-                productService.getAll();
-
+        cbProduct.removeAllItems();
+        cbProduct.addItem("-- Select --");
         for (Product p : productList) {
-
-            Object[] row = {
-
-                    p.getId(),
-
-                    p.getName(),
-
-                    p.getPrice(),
-
-                    p.getQuantity()
-            };
-
-            productModel.addRow(row);
+            cbProduct.addItem(p.getName());
         }
     }
-
-    // =========================================
-    // ADD TO CART
-    // =========================================
 
     private void addToCart() {
+        try {
+            if (cbProduct.getSelectedIndex() == 0) return;
+            int productIndex = cbProduct.getSelectedIndex() - 1;
+            Product p = productList.get(productIndex);
+            int quantity = Integer.parseInt(txtQuantity.getText());
 
-        int row =
-                tblProducts.getSelectedRow();
+            if (quantity <= 0 || quantity > p.getQuantity()) {
+                JOptionPane.showMessageDialog(this, "Invalid quantity or Out of stock");
+                return;
+            }
 
-        if (row == -1) {
+            InvoiceDetail d = new InvoiceDetail();
+            d.setProductId(p.getId());
+            d.setProductName(p.getName());
+            d.setQuantity(quantity);
+            d.setPrice(p.getPrice());
+            cart.add(d);
+            loadCart();
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Select product first"
-            );
-
-            return;
+            // Lock customer & update UI
+            cbCustomer.setEnabled(false);
+            panelCurrentCustomer.setVisible(true);
+            lblCurrentCustomer.setText("Current Customer: " + cbCustomer.getSelectedItem());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Invalid input");
         }
-
-        String qtyStr =
-                JOptionPane.showInputDialog(
-                        this,
-                        "Enter quantity:"
-                );
-
-        if (qtyStr == null) {
-
-            return;
-        }
-
-        int qty =
-                Integer.parseInt(qtyStr);
-
-        Product p =
-                productList.get(row);
-
-        // CHECK STOCK
-
-        if (qty > p.getQuantity()) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Not enough stock"
-            );
-
-            return;
-        }
-
-        // CREATE DETAIL
-
-        InvoiceDetail detail =
-                new InvoiceDetail();
-
-        detail.setProductId(p.getId());
-
-        detail.setQuantity(qty);
-
-        detail.setPrice(p.getPrice());
-
-        cart.add(detail);
-
-        // TABLE
-
-        double subtotal =
-                qty * p.getPrice();
-
-        Object[] rowData = {
-
-                p.getId(),
-
-                p.getName(),
-
-                qty,
-
-                p.getPrice(),
-
-                subtotal
-        };
-
-        cartModel.addRow(rowData);
-
-        updateTotal();
     }
 
-    // =========================================
-    // UPDATE TOTAL
-    // =========================================
-
-    private void updateTotal() {
-
-        double total =
-                invoiceService.calculateTotal(cart);
-
-        lblTotal.setText(
-                "Total: " + total
-        );
+    private void loadCart() {
+        cartModel.setRowCount(0);
+        double total = 0;
+        for (InvoiceDetail d : cart) {
+            Object[] row = {
+                    d.getProductName(),
+                    d.getQuantity(),
+                    "$" + d.getPrice(),
+                    "$" + d.getSubtotal(),
+                    "Remove"
+            };
+            cartModel.addRow(row);
+            total += d.getSubtotal();
+        }
+        lblTotal.setText("Total: $" + total);
     }
-
-    // =========================================
-    // CHECKOUT
-    // =========================================
 
     private void checkout() {
+        try {
+            if (cart.isEmpty()) return;
+            int customerIndex = cbCustomer.getSelectedIndex();
+            Customer c = customerList.get(customerIndex);
+            Invoice invoice = new Invoice();
+            invoice.setCustomerId(c.getId());
+            if(UserSession.getInstance() != null && UserSession.getInstance().getUser() != null) {
+                invoice.setUserId(UserSession.getInstance().getUser().getId());
+            }
+            double total = cart.stream().mapToDouble(InvoiceDetail::getSubtotal).sum();
+            invoice.setTotal(total);
 
-        if (cart.isEmpty()) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Cart empty"
-            );
-
-            return;
-        }
-
-        Customer customer =
-                (Customer) cbCustomers.getSelectedItem();
-
-        Invoice invoice =
-                new Invoice();
-
-        invoice.setCustomerId(
-                customer.getId()
-        );
-
-        invoice.setUserId(
-                UserSession.currentUser.getId()
-        );
-
-        boolean result =
-                invoiceService.checkout(
-                        invoice,
-                        cart
-                );
-
-        if (result) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Checkout success"
-            );
-
-            cart.clear();
-
-            cartModel.setRowCount(0);
-
-            updateTotal();
-
-            loadProducts();
-
-        } else {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Checkout failed"
-            );
+            boolean result = invoiceService.checkout(invoice, cart);
+            if (result) {
+                JOptionPane.showMessageDialog(this, "Checkout success");
+                clearCart();
+                productList = productService.getAll();
+                loadProducts();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+    private void clearCart() {
+        cart.clear();
+        loadCart();
+        cbCustomer.setEnabled(true);
+        panelCurrentCustomer.setVisible(false);
+    }
+
+    // --- INNER CLASSES FOR TABLE BUTTON ---
+    class RemoveButtonRenderer extends JButton implements TableCellRenderer {
+        public RemoveButtonRenderer() {
+            setOpaque(true);
+            setBackground(new Color(244, 67, 54)); // Red
+            setForeground(Color.WHITE);
+            setOpaque(true);             
+            setBorderPainted(false);
+            //setFocusPainted(false);
+        }
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setText((value == null) ? "Remove" : value.toString());
+            return this;
+        }
+    }
+
+    class RemoveButtonEditor extends DefaultCellEditor {
+    protected JButton button;
+    private int clickedRow;
+    private JTable table; // Lưu tham chiếu tới table
+
+    public RemoveButtonEditor(JCheckBox checkBox) {
+        super(checkBox);
+        button = new JButton("Remove");
+        button.setOpaque(true);
+        button.setBackground(new Color(244, 67, 54));
+        button.setForeground(Color.WHITE);
+        
+        
+        button.addActionListener(e -> {
+            fireEditingStopped();
+
+            if (clickedRow >= 0 && clickedRow < cart.size()) {
+                cart.remove(clickedRow);
+                loadCart();
+
+                if (cart.isEmpty()) {
+                    cbCustomer.setEnabled(true);
+                    panelCurrentCustomer.setVisible(false);
+                }
+            }
+        });
+    }
+
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        this.table = table;
+        this.clickedRow = table.convertRowIndexToModel(row); 
+        button.setText((value == null) ? "Remove" : value.toString());
+        return button;
+    }
+
+    @Override
+    public Object getCellEditorValue() {
+        return button.getText();
+    }
+}
 }

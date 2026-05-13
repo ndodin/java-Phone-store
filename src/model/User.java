@@ -6,15 +6,17 @@ public class User {
     private String username;
     private String password;
     private String role;
+    private int status;
 
     public User() {
     }
 
-    public User(int id, String username, String password, String role) {
+    public User(int id, String username, String password, String role, int status) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.status = status;
     }
 
     public int getId() {
@@ -49,6 +51,13 @@ public class User {
         this.role = role;
     }
 
+    public int getStatus() {
+    	return status;
+    }
+    
+    public void setStatus(int status) {
+    	this.status = status;
+    }
     @Override
     public String toString() {
         return username;

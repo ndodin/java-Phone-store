@@ -12,10 +12,7 @@ public class AuthService {
         userDAO = new UserDAO();
     }
 
-    // =========================================
     // LOGIN
-    // =========================================
-
     public User login(String username, String password) {
 
         // VALIDATE
