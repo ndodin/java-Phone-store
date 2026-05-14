@@ -7,6 +7,7 @@ import javax.swing.*;
 import model.*;
 import service.*;
 
+
 public class ProductController implements ActionListener {
 
     private ProductPanel view;
@@ -36,9 +37,9 @@ public class ProductController implements ActionListener {
         if (dialog.isSaved()) {
             if (service.insert(dialog.getProduct())) {
                 handleRefresh();
-                JOptionPane.showMessageDialog(view, "Thêm sản phẩm thành công!");
+                JOptionPane.showMessageDialog(view, "Add product success!");
             } else {
-                JOptionPane.showMessageDialog(view, "Lỗi: Không thể thêm vào Database!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(view, "Error!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -46,7 +47,7 @@ public class ProductController implements ActionListener {
     private void handleEdit() {
         int row = view.getTable().getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(view, "Vui lòng chọn sản phẩm cần sửa!");
+            JOptionPane.showMessageDialog(view, "Select product to edit!");
             return;
         }
         
@@ -58,29 +59,41 @@ public class ProductController implements ActionListener {
             dialog.setVisible(true);
             if (dialog.isSaved() && service.update(dialog.getProduct())) {
                 handleRefresh();
-                JOptionPane.showMessageDialog(view, "Cập nhật thành công!");
+                JOptionPane.showMessageDialog(view, "Update success!");
             }
         }
     }
     
     private void handleDelete() {
-        int row = view.getTable().getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(view, "Vui lòng chọn sản phẩm cần xóa!");
+    	String role =
+                session.UserSession
+                        .getInstance()
+                        .getUser()
+                        .getRole();
+        if (!role.equalsIgnoreCase("admin")) {
+            JOptionPane.showMessageDialog(
+                    view,
+                    "Access denied!"
+            );
             return;
         }
-        
+        int row = view.getTable().getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(view, "Select products to remove!");
+            return;
+        }
+      
         int id = (int) view.getTable().getValueAt(row, 0);
         String name = view.getTable().getValueAt(row, 1).toString();
         
         int confirm = JOptionPane.showConfirmDialog(view,
-                "Bạn có chắc muốn xóa \"" + name + "\"?", "Xác nhận",
+                "Delete product ID \"" + name + "\"?", "Confirm Delete",
                 JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         
         if (confirm == JOptionPane.YES_OPTION) {
             if (service.delete(id)) {
                 handleRefresh();
-                System.out.println("Đã xóa ID: " + id);
+                System.out.println("Delete product: " + name);
             }
         }
     }

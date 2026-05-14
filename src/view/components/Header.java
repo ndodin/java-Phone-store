@@ -11,17 +11,17 @@ public class Header extends JPanel {
     public Header() {
         setPreferredSize(new Dimension(0, 60));
         setBackground(Color.WHITE);
-        // Đường kẻ mảnh phía dưới header
+       
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
         setLayout(new BorderLayout());
 
-        // LEFT: Title của chức năng
+        // LEFT
         JLabel lblPageTitle = new JLabel("Phone Store Management System");
         lblPageTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblPageTitle.setBorder(new EmptyBorder(0, 20, 0, 0));
         add(lblPageTitle, BorderLayout.WEST);
 
-        // RIGHT: User Info & Logout
+        // RIGHT
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 12));
         rightPanel.setOpaque(false);
 

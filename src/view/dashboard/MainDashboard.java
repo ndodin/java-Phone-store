@@ -23,7 +23,6 @@ public class MainDashboard extends JFrame {
     public MainDashboard() {
         initComponents();
         initFrame();
-        checkRole();
     }
     
     
@@ -36,35 +35,15 @@ public class MainDashboard extends JFrame {
         
         
         cardLayout = new CardLayout();
-//        contentPanel = new JPanel(cardLayout);
         contentPanel = new JPanel(new BorderLayout());
         add(contentPanel, BorderLayout.CENTER);
         
-//        contentPanel.add(new ProductPanel(), "PRODUCT");
-//        contentPanel.add(new CustomerPanel(), "CUSTOMER");
-//        contentPanel.add(new InvoicePanel(), "INVOICE");
-//        contentPanel.add(new InvoiceHistoryPanel(), "HISTORY");
         
         sidebar.btnDashboard.addActionListener(e -> showPanel("DASHBOARD"));
         sidebar.btnProduct.addActionListener(e -> showPanel("PRODUCT"));
         sidebar.btnCustomer.addActionListener(e -> showPanel("CUSTOMER"));
         sidebar.btnInvoice.addActionListener(e -> showPanel("INVOICE"));
         sidebar.btnHistory.addActionListener(e -> showPanel("HISTORY"));
-
-//        sidebar.btnProduct.addActionListener(e -> {
-//            cardLayout.show(contentPanel, "PRODUCT");
-//        });
-//        sidebar.btnCustomer.addActionListener(e -> {
-//            cardLayout.show(contentPanel, "CUSTOMER");
-//        });
-//
-//        sidebar.btnInvoice.addActionListener(e -> {
-//            cardLayout.show(contentPanel, "INVOICE");
-//        });
-//
-//        sidebar.btnHistory.addActionListener(e -> {
-//            cardLayout.show(contentPanel, "HISTORY");
-//        });
 
         header.btnLogout.addActionListener(e -> logout());
         showPanel("DASHBOARD");
@@ -98,17 +77,7 @@ public class MainDashboard extends JFrame {
         
         contentPanel.revalidate();
         contentPanel.repaint();
-    }
-    
-    
-    
-    
-    private void checkRole() {
-    	String role = UserSession.getInstance().getUser().getRole();
-        if (role.equalsIgnoreCase("staff")) {
-            sidebar.btnProduct.setEnabled(false);
-        }
-    }
+    } 
 
     private void logout() {
         int confirm =
@@ -119,7 +88,6 @@ public class MainDashboard extends JFrame {
         }
     }
     
-
     private void initFrame() {
         setTitle("Phone Store Management");
         setExtendedState(JFrame.MAXIMIZED_BOTH);

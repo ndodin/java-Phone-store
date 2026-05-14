@@ -23,7 +23,7 @@ public class ProductDAO {
                 Product p = new Product();
                 p.setId(rs.getInt("id"));
                 p.setName(rs.getString("name"));
-                p.setPrice(rs.getDouble("price"));
+                p.setPrice(rs.getBigDecimal("price"));
                 p.setQuantity(rs.getInt("quantity"));
                 list.add(p);
             }
@@ -59,7 +59,7 @@ public class ProductDAO {
                 Product p = new Product();
                 p.setId(rs.getInt("id"));
                 p.setName(rs.getString("name"));
-                p.setPrice(rs.getDouble("price"));
+                p.setPrice(rs.getBigDecimal("price"));
                 p.setQuantity(rs.getInt("quantity"));
                 return p;
             }
@@ -75,7 +75,7 @@ public class ProductDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);) {
             ps.setString(1, p.getName());
-            ps.setDouble(2, p.getPrice());
+            ps.setBigDecimal(2, p.getPrice());
             ps.setInt(3, p.getQuantity());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class ProductDAO {
                 PreparedStatement ps = conn.prepareStatement(sql);)
         {
             ps.setString(1, p.getName());
-            ps.setDouble(2, p.getPrice());
+            ps.setBigDecimal(2, p.getPrice());
             ps.setInt(3, p.getQuantity());
             ps.setInt(4, p.getId());
             return ps.executeUpdate() > 0;
@@ -116,7 +116,7 @@ public class ProductDAO {
         return false;
     }
 
-    // UPDATE STOCK
+    // giảm tồn kho
     public boolean updateStock(int productId, int quantity) {
     	String sql = """
                 UPDATE Products
@@ -136,7 +136,7 @@ public class ProductDAO {
         return false;
     }
 
-    // RESTORE STOCK
+    // hoàn kho
     public boolean restoreStock(int productId, int quantity) {
     	String sql = """
                 UPDATE Products
@@ -154,5 +154,23 @@ public class ProductDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    //LOW STOCK
+    public int getLowStockCount(int threshold) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM Products WHERE quantity < ? AND status = 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, threshold); 
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt("total");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
     }
 }

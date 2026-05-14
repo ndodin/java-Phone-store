@@ -7,6 +7,7 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import model.Product;
 import service.ProductService;
+import java.math.BigDecimal;
 
 public class ProductPanel extends JPanel {
     
@@ -63,11 +64,13 @@ public class ProductPanel extends JPanel {
     }
     
     private void buildTable() {
-        String[] cols = {"ID", "Name", "Price ($)", "Quantity", "Actions"};
+        String[] cols = {"ID", "Name", "Price", "Quantity", "Actions"};
         model = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return c == 4; }
             @Override public Class<?> getColumnClass(int c) {
-                return (c == 0 || c == 3) ? Integer.class : (c == 2 ? Float.class : String.class);
+            	return (c == 0 || c == 3)
+            	        ? Integer.class
+            	        : (c == 2 ? BigDecimal.class : String.class);
             }
         };
         
@@ -84,13 +87,27 @@ public class ProductPanel extends JPanel {
         
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
         DefaultTableCellRenderer priceRenderer = new DefaultTableCellRenderer() {
-            private final java.text.DecimalFormat fmt = new java.text.DecimalFormat("#,##0");
-            @Override
-            protected void setValue(Object value) {
-                setText(value == null ? "" : fmt.format(value) + " VND");
-            }
-        };
-        center.setHorizontalAlignment(SwingConstants.CENTER);
+
+    private final java.text.DecimalFormat fmt =
+            new java.text.DecimalFormat("#,##0.00");
+
+    @Override
+    protected void setValue(Object value) {
+
+        if (value instanceof BigDecimal) {
+
+            BigDecimal price = (BigDecimal) value;
+
+            setText("$"+fmt.format(price));
+
+        } else {
+
+            setText("");
+
+        }
+    }
+};
+        center.setHorizontalAlignment(SwingConstants.LEFT);
         int[] widths = {50, 250, 100, 100, 150};
         
         for (int i = 0; i < widths.length; i++) {
@@ -112,16 +129,35 @@ public class ProductPanel extends JPanel {
     }
     
     private JButton createButton(String text, Color bg, String cmd) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(130, 32));
-        btn.setFont(BOLD_FONT);
-        btn.setBackground(bg);
-        btn.setForeground(Color.BLACK);
-        btn.setFocusPainted(false);
-        btn.setActionCommand(cmd);
-        btn.addActionListener(controller);
-        return btn;
-    }
+
+    JButton btn = new JButton(text);
+
+    btn.setPreferredSize(new Dimension(130, 32));
+
+    btn.setFont(BOLD_FONT);
+
+    btn.setBackground(bg);
+
+    btn.setForeground(Color.WHITE);
+
+    btn.setFocusPainted(false);
+
+    btn.setBorderPainted(false);
+
+    btn.setContentAreaFilled(true);
+
+    btn.setOpaque(true);
+
+    btn.setUI(new javax.swing.plaf.basic.BasicButtonUI());
+
+    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+    btn.setActionCommand(cmd);
+
+    btn.addActionListener(controller);
+
+    return btn;
+}
     
     public void refreshTable(List<Product> products) {
         model.setRowCount(0);

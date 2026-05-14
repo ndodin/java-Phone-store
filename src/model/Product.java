@@ -1,17 +1,19 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class Product {
 
     private int id;
     private String name;
-    private double price;
+    private BigDecimal price;
     private int quantity;
     private int status;
 
     public Product() {
     }
 
-    public Product(int id, String name, double price, int quantity, int status) {
+    public Product(int id, String name, BigDecimal price, int quantity, int status) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -35,11 +37,11 @@ public class Product {
         this.name = name;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

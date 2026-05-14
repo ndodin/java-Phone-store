@@ -19,11 +19,11 @@ public class DashBoard extends JPanel {
   }
   
   private void initComponents() {
-    setLayout(new BorderLayout(0, 20)); // Khoảng cách giữa phần trên và phần dưới
+    setLayout(new BorderLayout(0, 20));
     setBackground(new Color(245, 245, 245));
     setBorder(new EmptyBorder(20, 20, 20, 20));
     
-    // --- PHẦN TOP: Gồm Tiêu đề và các Thẻ Thống kê ---
+    // TOP
     JPanel topWrapper = new JPanel(new BorderLayout(0, 15));
     topWrapper.setOpaque(false);
     
@@ -36,51 +36,41 @@ public class DashBoard extends JPanel {
     cardContainer.add(createStatCard("Total Products", String.valueOf(new ProductService().getTotalProduct()), new Color(33, 150, 243)));
     cardContainer.add(createStatCard("Total Customers", String.valueOf(new CustomerService().getTotalCustomers()), new Color(76, 175, 80)));
     double revenue = new InvoiceService().getTodayRevenue();
-    cardContainer.add(createStatCard("Today Revenue", String.format("%,.0f VNĐ", revenue), new Color(255, 152, 0)));
+    cardContainer.add(createStatCard("Today Revenue", String.format("$"+"%.2f", revenue), new Color(255, 152, 0)));
     
     topWrapper.add(cardContainer, BorderLayout.CENTER);
-    
-    // Add topWrapper vào NORTH của Dashboard
+
     add(topWrapper, BorderLayout.NORTH);
     
-    // --- PHẦN CENTER: Bảng hóa đơn gần đây (Đồng bộ format với History) ---
-    JPanel bottomPanel = new JPanel(new BorderLayout(0, 10));
-    bottomPanel.setBackground(Color.WHITE);
-    bottomPanel.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(new Color(220, 220, 220), 1),
-            new EmptyBorder(15, 15, 15, 15)
-    ));
-    
-    JLabel lblTableTitle = new JLabel("Recent Invoices");
-    lblTableTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-    bottomPanel.add(lblTableTitle, BorderLayout.NORTH);
+ // center
+ JPanel systemInfoPanel = new JPanel(new BorderLayout(0, 10));
+ systemInfoPanel.setBackground(Color.WHITE);
+ systemInfoPanel.setBorder(BorderFactory.createCompoundBorder(
+         new LineBorder(new Color(220, 220, 220), 1),
+         new EmptyBorder(15, 15, 15, 15)
+ ));
 
-    String[] columns = {"ID", "Customer", "Date", "Total", "Status", "Created By"};
+ JLabel lblInfoTitle = new JLabel("System Information");
+ lblInfoTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+ systemInfoPanel.add(lblInfoTitle, BorderLayout.NORTH);
 
-    DefaultTableModel model = new DefaultTableModel(columns, 0) {
-      @Override
-      public boolean isCellEditable(int row, int column) {
-        return false;
-      }
-    };
-    
-    JTable table = new JTable(model);
-    table.setRowHeight(35);
-    table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-    table.getTableHeader().setBackground(new Color(245, 245, 245));
-    table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-    table.setSelectionBackground(new Color(232, 242, 254));
-    table.setShowGrid(false);
-    table.setIntercellSpacing(new Dimension(0, 0));
-    
-    JScrollPane scrollPane = new JScrollPane(table);
-    scrollPane.getViewport().setBackground(Color.WHITE);
-    scrollPane.setBorder(BorderFactory.createEmptyBorder());
-    bottomPanel.add(scrollPane, BorderLayout.CENTER);
-    
-    add(bottomPanel, BorderLayout.CENTER);
+ // Panel chứa các dòng text thông tin
+ JPanel infoContent = new JPanel();
+ infoContent.setLayout(new BoxLayout(infoContent, BoxLayout.Y_AXIS));
+ infoContent.setOpaque(false);
 
-    loadRecentInvoices(model);
+ int lowStockCount = new ProductService().getLowStockCount(10); // cảnh báo nếu số lượng tồn kho <=10
+
+ infoContent.add(createLabelInfo("System Status: ", "Running", new Color(76, 175, 80)));
+ infoContent.add(Box.createVerticalStrut(10));
+ infoContent.add(Box.createVerticalStrut(10));
+ infoContent.add(createLabelInfo("Low Stock Items: ", String.valueOf(lowStockCount), 
+                lowStockCount > 0 ? Color.RED : Color.GRAY));
+
+ systemInfoPanel.add(infoContent, BorderLayout.CENTER);
+
+ 
+ add(systemInfoPanel, BorderLayout.CENTER);
   }
   
   private JPanel createStatCard(String title, String value, Color valueColor) {
@@ -109,23 +99,20 @@ public class DashBoard extends JPanel {
     return card;
   }
   
-  private void loadRecentInvoices(DefaultTableModel model) {
-    model.setRowCount(0);
-    List<Invoice> list = new service.InvoiceService().getTop(10);
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    for (Invoice i : list) {
-      String formattedDate = (i.getDate() != null) ? sdf.format(i.getDate()) : "";
-      String formattedTotal = String.format("%,.0f VNĐ", i.getTotal());
-      
-      Object[] row = {
-              "HD_" + i.getId(),
-              i.getCustomerName(),
-              formattedDate,
-              formattedTotal,
-              i.getStatus(),
-              i.getUsername()
-      };
-      model.addRow(row);
-    }
-  }
+  private JPanel createLabelInfo(String label, String value, Color valueColor) {
+	    JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+	    p.setOpaque(false);
+	    JLabel lblHeader = new JLabel(label);
+	    lblHeader.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+	    
+	    JLabel lblValue = new JLabel(value);
+	    lblValue.setFont(new Font("Segoe UI", Font.BOLD, 15));
+	    lblValue.setForeground(valueColor);
+	    
+	    p.add(lblHeader);
+	    p.add(lblValue);
+	    return p;
+	}
+  
+  
 }

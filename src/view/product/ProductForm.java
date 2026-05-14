@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import model.*;
+import java.math.BigDecimal;
 
 public class ProductForm extends JDialog {
 
@@ -62,7 +63,12 @@ public class ProductForm extends JDialog {
         gbc.weightx = 1.0;
 
         txtName = createStyledField(product.getName() != null ? product.getName() : "");
-        txtPrice = createStyledField(product.getPrice() > 0 ? String.valueOf(product.getPrice()) : "");
+        txtPrice = createStyledField(
+                product.getPrice() != null &&
+                product.getPrice().compareTo(BigDecimal.ZERO) > 0
+                        ? String.valueOf(product.getPrice())
+                        : ""
+        );
         txtQuantity = createStyledField(product.getQuantity() > 0 ? String.valueOf(product.getQuantity()) : "");
 
         addFormRow(body, gbc, 0, "Product Name", txtName);
@@ -164,9 +170,9 @@ public class ProductForm extends JDialog {
                 return;
             }
             try {
-                float price = Float.parseFloat(priceStr);
+            	BigDecimal price = new BigDecimal(priceStr);
                 int qty = Integer.parseInt(qtyStr);
-                if (price < 0 || qty < 0) {
+                if (price.compareTo(BigDecimal.ZERO) < 0 || qty < 0) {
                     showError("Price and Quantity must be non-negative.");
                     return;
                 }

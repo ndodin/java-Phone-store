@@ -3,54 +3,66 @@ package view.product;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import session.UserSession;
 
-public class ActionButtonRenderer implements TableCellRenderer {
-    
-    private JPanel panel;
-    private JButton btnEdit;
-    private JButton btnDelete;
-    
-    private static final Color EDIT_BG = new Color(49, 130, 206);
-    private static final Color DELETE_BG = new Color(229, 62, 62);
-    private static final Color FG = Color.WHITE;
-    private static final Color ROW_ODD = new Color(22, 25, 37);
-    private static final Color ROW_EVEN = new Color(26, 32, 46);
-    
+public class ActionButtonRenderer extends JPanel
+        implements TableCellRenderer {
+    private static final Color ACCENT = new Color(13, 110, 253);
+    private static final Color DANGER =  new Color(244, 67, 54);
+    private String userRole =
+            UserSession.getInstance()
+                    .getUser()
+                    .getRole();
     public ActionButtonRenderer() {
-        panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
-        btnEdit = makeButton("Edit", EDIT_BG);
-        btnDelete = makeButton("Delete", DELETE_BG);
-        panel.add(btnEdit);
-        panel.add(btnDelete);
+        setLayout(
+                new FlowLayout(
+                        FlowLayout.CENTER,
+                        5,
+                        5
+                )
+        );
+        setOpaque(true);
+        add(createButton("Edit", ACCENT));
+        if ("admin".equalsIgnoreCase(userRole)) {
+            add(createButton("Delete", DANGER));
+        }
     }
-    
-    private JButton makeButton(String text, Color bg) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(bg);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        btn.setForeground(FG);
+    private JButton createButton(
+            String text,
+            Color bg
+    ) {
+        JButton btn = new JButton(text);
+        btn.setFont(
+                new Font("Segoe UI", Font.BOLD, 12)
+        );
         btn.setBackground(bg);
-        btn.setOpaque(false);
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
+        btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
-        btn.setPreferredSize(new Dimension(80, 28));
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
+        btn.setUI(
+                new javax.swing.plaf.basic.BasicButtonUI()
+        );
+        btn.setPreferredSize(
+                new Dimension(80, 28)
+        );
         return btn;
     }
-    
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-                                                   boolean isSelected, boolean hasFocus, int row, int column) {
-        panel.setBackground(isSelected ? new Color(207, 226, 255) : Color.WHITE); // bỏ màu tối
-        return panel;
+    public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column
+    ) {
+        setBackground(
+                isSelected
+                        ? table.getSelectionBackground()
+                        : Color.WHITE
+        );
+        return this;
     }
 }

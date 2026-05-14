@@ -23,17 +23,17 @@ public class LoginForm extends JFrame {
     }
 
     private void initComponents() {
-    // Màu sắc
+    // color
     Color bgColor = new Color(242, 242, 242);
     Color borderColor = new Color(210, 210, 210);
     Color btnColor = new Color(33, 150, 243);
     Color labelColor = new Color(100, 100, 100);
 
-    // PANEL CHÍNH (Nền xám nhạt toàn màn hình)
+    // main panel
     JPanel mainPanel = new JPanel(new GridBagLayout());
     mainPanel.setBackground(bgColor);
 
-    // LOGIN CARD (Khung trắng ở giữa)
+    // LOGIN CARD 
     JPanel loginPanel = new JPanel(new GridBagLayout());
     loginPanel.setBackground(Color.WHITE);
     loginPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -42,8 +42,8 @@ public class LoginForm extends JFrame {
     ));
 
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.fill = GridBagConstraints.HORIZONTAL; // Giãn rộng theo chiều ngang
-    gbc.insets = new Insets(5, 0, 5, 0); // Khoảng cách giữa các dòng
+    gbc.fill = GridBagConstraints.HORIZONTAL; 
+    gbc.insets = new Insets(5, 0, 5, 0); 
     gbc.gridx = 0;
 
     // 1. Title "Phone Store Management"
@@ -57,7 +57,7 @@ public class LoginForm extends JFrame {
     lblSubTitle.setFont(new Font("Segoe UI", Font.PLAIN, 18));
     lblSubTitle.setForeground(labelColor);
     gbc.gridy = 1;
-    gbc.insets = new Insets(0, 0, 40, 0); // Khoảng trống lớn phía dưới subtitle
+    gbc.insets = new Insets(0, 0, 40, 0); 
     loginPanel.add(lblSubTitle, gbc);
 
     // 3. Username Label
@@ -82,7 +82,7 @@ public class LoginForm extends JFrame {
     JLabel lblPassword = new JLabel("Password:");
     lblPassword.setFont(new Font("Segoe UI", Font.BOLD, 18));
     gbc.gridy = 4;
-    gbc.insets = new Insets(20, 0, 5, 0); // Cách ô trên một khoảng
+    gbc.insets = new Insets(20, 0, 5, 0); 
     loginPanel.add(lblPassword, gbc);
 
     // 6. Password Field
@@ -105,7 +105,6 @@ public class LoginForm extends JFrame {
     btnLogin.setBorderPainted(false);
     btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
     
-    // Để nút Login nhỏ lại và nằm bên trái
     JPanel btnWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     btnWrapper.setOpaque(false);
     btnLogin.setPreferredSize(new Dimension(120, 45));
@@ -115,15 +114,6 @@ public class LoginForm extends JFrame {
     gbc.insets = new Insets(30, 0, 30, 0);
     loginPanel.add(btnWrapper, gbc);
 
-    // 8. Demo Text
-    JLabel lblDemo = new JLabel("Demo: Use \"admin\" or \"staff\" as username", SwingConstants.CENTER);
-    lblDemo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-    lblDemo.setForeground(labelColor);
-    gbc.gridy = 7;
-    gbc.insets = new Insets(0, 0, 0, 0);
-    loginPanel.add(lblDemo, gbc);
-
-    // Thêm vào mainPanel để căn giữa toàn bộ Card Login
     mainPanel.add(loginPanel);
     add(mainPanel);
 
@@ -160,7 +150,6 @@ public class LoginForm extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Thiết lập giao diện hệ thống cho mượt hơn
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}

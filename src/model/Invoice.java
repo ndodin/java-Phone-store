@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class Invoice {
@@ -8,7 +9,7 @@ public class Invoice {
     private int customerId;
     private int userId;
     private Date date;
-    private double total;
+    private BigDecimal total;
     private String status;
     private String customerName;
 
@@ -18,7 +19,7 @@ public class Invoice {
     }
 
     public Invoice(int id, int customerId, int userId,
-                   Date date, double total, String status) {
+                   Date date, BigDecimal total, String status) {
 
         this.id = id;
         this.customerId = customerId;
@@ -60,11 +61,11 @@ public class Invoice {
         this.date = date;
     }
 
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 

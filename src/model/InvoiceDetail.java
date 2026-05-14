@@ -1,21 +1,23 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class InvoiceDetail {
 
     private int id;
     private int invoiceId;
     private int productId;
     private int quantity;
-    private double price;
+    private BigDecimal price;
     
     private String productName;
-    private double subtotal;
+    private BigDecimal subtotal;
 
     public InvoiceDetail() {
     }
 
     public InvoiceDetail(int id, int invoiceId,
-                         int productId, int quantity, double price) {
+                         int productId, int quantity, BigDecimal price) {
 
         this.id = id;
         this.invoiceId = invoiceId;
@@ -56,11 +58,11 @@ public class InvoiceDetail {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
     
@@ -72,11 +74,14 @@ public class InvoiceDetail {
         this.productName = productName;
     }
     
-    public double getSubtotal() {
-        return this.price * this.quantity;
+    public BigDecimal getSubtotal() {
+    	if (price == null) {
+            return BigDecimal.ZERO;
+        }
+        return price.multiply(BigDecimal.valueOf(quantity));
     }
 
-    public void setSubtotal(double subtotal) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 }

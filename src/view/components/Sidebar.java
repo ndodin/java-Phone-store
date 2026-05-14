@@ -10,7 +10,7 @@ public class Sidebar extends JPanel {
     public Sidebar() {
         setPreferredSize(new Dimension(200, 0));
         setBackground(new Color(248, 249, 250));
-        // Border bên phải để ngăn cách với nội dung chính
+   
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(220, 220, 220)));
         setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
@@ -45,8 +45,8 @@ public class Sidebar extends JPanel {
         btn.setMargin(new Insets(0, 20, 0, 0));
 
         if (isActive) {
-            btn.setBackground(new Color(230, 244, 255)); // Màu xanh nhạt khi active
-            btn.setForeground(new Color(0, 102, 204));   // Chữ xanh
+            btn.setBackground(new Color(230, 244, 255)); 
+            btn.setForeground(new Color(0, 102, 204));  
         } else {
             btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(51, 51, 51));

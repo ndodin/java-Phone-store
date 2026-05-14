@@ -19,7 +19,7 @@ public class InvoiceDAO {
         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1,invoice.getCustomerId());
         ps.setInt(2,invoice.getUserId());
-        ps.setDouble(3,invoice.getTotal());
+        ps.setBigDecimal(3,invoice.getTotal());
         ps.setString(4,invoice.getStatus());
         ps.executeUpdate();
         ResultSet rs =ps.getGeneratedKeys();
@@ -31,15 +31,10 @@ public class InvoiceDAO {
     
     // GET ALL
     public List<Invoice> getAll() {
-
         List<Invoice> list =
                 new ArrayList<>();
-
         try {
-
-            Connection conn =
-                    DBConnection.getConnection();
-
+            Connection conn = DBConnection.getConnection();
             String sql = """
                     SELECT i.*,
                            c.name AS customer_name,
@@ -51,61 +46,26 @@ public class InvoiceDAO {
                     ON i.user_id = u.id
                     ORDER BY i.id DESC
                     """;
-
-            Statement st =
-                    conn.createStatement();
-
-            ResultSet rs =
-                    st.executeQuery(sql);
-
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
-
-                Invoice i = new Invoice();
-
+               Invoice i = new Invoice();
                 i.setId(rs.getInt("id"));
-
-                i.setCustomerId(
-                        rs.getInt("customer_id")
-                );
-
-                i.setUserId(
-                        rs.getInt("user_id")
-                );
-
-                i.setDate(
-                        rs.getTimestamp("date")
-                );
-
-                i.setTotal(
-                        rs.getDouble("total")
-                );
-
-                i.setStatus(
-                        rs.getString("status")
-                );
-
-                i.setCustomerName(
-                        rs.getString("customer_name")
-                );
-
-                i.setUsername(
-                        rs.getString("username")
-                );
-
+                i.setCustomerId( rs.getInt("customer_id") );
+                i.setUserId( rs.getInt("user_id") );
+                i.setDate(rs.getTimestamp("date"));
+                i.setTotal(rs.getBigDecimal("total"));
+                i.setStatus(rs.getString("status"));
+                i.setCustomerName(rs.getString("customer_name"));
+                i.setUsername(rs.getString("username"));
                 list.add(i);
             }
-
             conn.close();
-
         } catch (Exception e) {
-
             e.printStackTrace();
         }
-
         return list;
     }
-    
-    
     public List<Invoice> getRecent(int limit) {
         List<Invoice> list = new ArrayList<>();
         String sql = """
@@ -130,7 +90,7 @@ public class InvoiceDAO {
                 i.setCustomerId(rs.getInt("customer_id"));
                 i.setUserId(rs.getInt("user_id"));
                 i.setDate(rs.getTimestamp("date"));
-                i.setTotal(rs.getDouble("total"));
+                i.setTotal(rs.getBigDecimal("total"));
                 i.setStatus(rs.getString("status"));
                 i.setCustomerName(rs.getString("customer_name"));
                 i.setUsername(rs.getString("username"));
@@ -141,7 +101,6 @@ public class InvoiceDAO {
         }
         return list;
     }
-    
     
     public double getTodayRevenue() {
         double total = 0;
@@ -169,35 +128,22 @@ public class InvoiceDAO {
     public boolean cancelInvoice(
             int invoiceId
     ) {
-
-        try {
-
-            Connection conn =
-                    DBConnection.getConnection();
-
-            String sql = """
-                    UPDATE Invoices
-                    SET status = 'CANCELLED'
-                    WHERE id = ?
-                    """;
-
-            PreparedStatement ps =
-                    conn.prepareStatement(sql);
-
+    	String sql = """
+                UPDATE Invoices
+                SET status = 'CANCELLED'
+                WHERE id = ?
+                """;
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);)
+        {
             ps.setInt(1, invoiceId);
-
             int result =
                     ps.executeUpdate();
-
-            conn.close();
-
+           
             return result > 0;
-
         } catch (Exception e) {
-
             e.printStackTrace();
         }
-
         return false;
     }
 }
