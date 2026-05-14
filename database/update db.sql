@@ -58,40 +58,54 @@ GO
 
 INSERT INTO Users (username, password, role, status) VALUES 
 ('admin_master', 'hash_admin_123', 'admin', 1),
+('admin2', '123', 'admin', 1),
+('staff', '1234', 'staff', 1),
 ('clara_staff', 'hash_staff_456', 'staff', 1),
-('james_sales', 'hash_sales_789', 'staff', 1);
+('james_sales', 'hash_sales_789', 'staff', 0);
 
 INSERT INTO Customers (name, phone, status) VALUES 
 ('Alice Johnson', '0901112233', 1),
 ('Bob Smith', '0904445566', 1),
 ('Charlie Brown', '0907778899', 1),
 ('Diana Prince', '0912223344', 1),
+('Martin Edward', '0912223678', 0),
 ('Edward Norton', '0915556677', 1);
 
 INSERT INTO Products (name, price, quantity, status) VALUES 
-('Wireless Mouse', 25.00, 100, 1),
-('Mechanical Keyboard', 75.50, 50, 1),
-('Gaming Monitor 24"', 150.00, 20, 1),
-('USB-C Hub', 45.00, 80, 1),
-('Webcam HD', 60.00, 35, 1),
-('Laptop Stand', 30.00, 120, 1),
-('Noise Cancelling Headphones', 199.99, 15, 1),
-('External SSD 1TB', 110.00, 40, 1),
-('Smartphone Tripod', 15.00, 200, 1),
-('Bluetooth Speaker', 55.00, 60, 1);
+('iPhone 15 Pro Max', 1200.00, 15, 1),
+('Samsung Galaxy S24 Ultra', 1150.00, 5, 1),  -- Low Stock
+('Google Pixel 8 Pro', 900.00, 12, 1),
+('Xiaomi 14 Ultra', 1000.00, 3, 1),           -- Low Stock
+('Oppo Find X7 Ultra', 950.00, 20, 1),
+('Asus ROG Phone 8', 1100.00, 8, 1),          -- Low Stock
+('iPad Air M2', 600.00, 25, 1),
+('AirPods Pro Gen 2', 250.00, 50, 1),
+('Samsung Galaxy Buds 3', 180.00, 40, 1),
+('GaN 65W Fast Charger', 45.00, 100, 1),
+('iPhone MagSafe Case', 30.00, 150, 1),
+('Screen Protector', 15.00, 200, 1);
 
 INSERT INTO Invoices (customer_id, user_id, date, total, status) VALUES 
-(1, 2, GETDATE(), 100.50, 'COMPLETED'),
-(2, 3, GETDATE(), 150.00, 'COMPLETED'),
-(3, 2, GETDATE(), 45.00, 'CANCELLED'),
-(4, 3, GETDATE(), 199.99, 'COMPLETED'),
-(5, 2, GETDATE(), 85.00, 'COMPLETED');
+(1, 2, GETDATE(), 1450.00, 'COMPLETED'), -- Alice
+(2, 3, GETDATE(), 1150.00, 'COMPLETED'), -- Bob
+(3, 2, GETDATE(), 900.00, 'CANCELLED'),  -- Charlie
+(4, 3, GETDATE(), 250.00, 'COMPLETED'),  -- Diana
+(5, 2, GETDATE(), 1030.00, 'COMPLETED'); -- Edward
 
 INSERT INTO InvoiceDetails (invoice_id, product_id, quantity, price) VALUES 
-(1001, 1, 1, 25.00), -- Alice bought Mouse
-(1001, 2, 1, 75.50), -- Alice bought Keyboard
-(1002, 3, 1, 150.00),-- Bob bought Monitor
-(1003, 4, 1, 45.00), -- Charlie (Cancelled)
-(1004, 7, 1, 199.99),-- Diana bought Headphones
-(1005, 1, 1, 25.00), -- Edward bought Mouse
-(1005, 5, 1, 60.00);  -- Edward bought Webcam
+-- Invoice 1001: Alice (iPhone + AirPods)
+(1001, 1, 1, 1200.00), 
+(1001, 8, 1, 250.00),
+
+-- Invoice 1002: Bob (Samsung S24 Ultra)
+(1002, 2, 1, 1150.00),
+
+-- Invoice 1003: Charlie (Google Pixel - Cancelled)
+(1003, 3, 1, 900.00),
+
+-- Invoice 1004: Diana (AirPods Pro)
+(1004, 8, 1, 250.00),
+
+-- Invoice 1005: Edward (Xiaomi + Case)
+(1005, 4, 1, 1000.00),
+(1005, 11, 1, 30.00);
